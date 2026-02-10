@@ -94,7 +94,7 @@ export function CameraController() {
       mouseButtons={{
         LEFT: undefined,
         MIDDLE: 2,
-        RIGHT: cameraMode === 'top-down' ? 2 : 2,
+        RIGHT: 2,
       }}
       {...orbitProps}
     />
