@@ -1,73 +1,92 @@
-# React + TypeScript + Vite
+# ScopeDown
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A sci-fi real-time strategy game inspired by Command & Conquer, built with **Three.js**, **React Three Fiber**, and **WebGPU**.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Three.js** — 3D rendering engine
+- **React Three Fiber** — React renderer for Three.js
+- **React Three Drei** — Useful helpers for R3F
+- **WebGPU** — Next-gen GPU API (with WebGL2 fallback)
+- **Zustand** — Lightweight state management
+- **Vite** — Fast build tooling
+- **TypeScript** — Type-safe development
+- **Vitest** — Unit testing
 
-## React Compiler
+## Camera Modes
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Switch between three camera perspectives at any time:
 
-## Expanding the ESLint configuration
+| Mode | Description |
+|------|-------------|
+| **Top-Down (Tactical)** | Classic RTS overhead view with pan and zoom |
+| **Third-Person** | Over-the-shoulder view following selected units |
+| **First-Person** | Ground-level view from selected unit's perspective |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Controls
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| Input | Action |
+|-------|--------|
+| Left Click | Select unit |
+| Shift + Click | Multi-select units |
+| Right Click | Move selected units |
+| Scroll Wheel | Zoom in/out |
+| Middle Mouse | Rotate camera |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Getting Started
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Run tests
+npm test
+
+# Lint code
+npm run lint
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Project Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/
+│   ├── Buildings.tsx        # Building structures with health bars
+│   ├── CameraController.tsx # Multi-mode camera system
+│   ├── HUD.tsx              # Heads-up display overlay
+│   ├── Minimap.tsx          # Radar minimap
+│   ├── Scene.tsx            # Main 3D scene composition
+│   ├── SelectionBox.tsx     # RTS right-click movement
+│   ├── Terrain.tsx          # Sci-fi terrain with grid and decorations
+│   └── Units.tsx            # Unit rendering with selection and health
+├── store/
+│   └── gameStore.ts         # Zustand game state management
+├── types/
+│   └── game.ts              # TypeScript type definitions
+├── utils/
+│   └── webgpu.ts            # WebGPU detection and renderer info
+├── test/
+│   ├── setup.ts             # Test setup
+│   ├── gameStore.test.ts    # Game store unit tests
+│   └── webgpu.test.ts       # WebGPU utility tests
+├── App.tsx                  # Root component with R3F Canvas
+├── main.tsx                 # Entry point
+└── index.css                # Global styles
+```
+
+## Game Features
+
+- **Unit Types**: Soldiers, Tanks, Mechs, Harvesters — each with unique stats
+- **Buildings**: Base, Barracks, Factory, Power Plant, Refinery
+- **Resource System**: Credits and power management
+- **Selection System**: Click and shift-click unit selection with visual indicators
+- **Movement System**: Right-click to command selected units
+- **Health System**: Health bars and damage mechanics
+- **Minimap**: Radar overview showing all units and buildings
+- **Pause System**: Pause and resume gameplay

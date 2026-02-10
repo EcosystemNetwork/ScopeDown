@@ -1,6 +1,6 @@
 import { useRef, useCallback } from 'react';
 import { Mesh, Vector3 } from 'three';
-import { useFrame, ThreeEvent } from '@react-three/fiber';
+import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useGameStore } from '../store/gameStore';
 import type { Unit } from '../types/game';
 

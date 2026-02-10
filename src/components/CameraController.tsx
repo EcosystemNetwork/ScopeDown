@@ -1,7 +1,8 @@
 import { useRef, useEffect } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { Vector3 } from 'three';
+import { Vector3, PerspectiveCamera } from 'three';
+import { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { useGameStore } from '../store/gameStore';
 import type { CameraMode } from '../types/game';
 
@@ -11,26 +12,31 @@ const CAMERA_CONFIGS: Record<CameraMode, { position: Vector3; fov: number }> = {
   'top-down': { position: new Vector3(0, 30, 0.1), fov: 50 },
 };
 
+function applyCameraConfig(cam: PerspectiveCamera, config: { position: Vector3; fov: number }) {
+  cam.position.copy(config.position);
+  cam.fov = config.fov;
+  cam.updateProjectionMatrix();
+}
+
 export function CameraController() {
   const cameraMode = useGameStore((s) => s.cameraMode);
   const selectedUnitIds = useGameStore((s) => s.selectedUnitIds);
   const units = useGameStore((s) => s.units);
-  const { camera } = useThree();
-  const controlsRef = useRef<any>(null);
+  const threeState = useThree();
+  const controlsRef = useRef<OrbitControlsImpl>(null);
   const targetRef = useRef(new Vector3(0, 0, 0));
 
   useEffect(() => {
+    const cam = threeState.camera;
     const config = CAMERA_CONFIGS[cameraMode];
-    camera.position.copy(config.position);
-    if ('fov' in camera) {
-      (camera as any).fov = config.fov;
-      (camera as any).updateProjectionMatrix();
+    if (cam instanceof PerspectiveCamera) {
+      applyCameraConfig(cam, config);
     }
     if (controlsRef.current) {
       controlsRef.current.target.set(0, 0, 0);
       controlsRef.current.update();
     }
-  }, [cameraMode, camera]);
+  }, [cameraMode, threeState.camera]);
 
   useFrame(() => {
     if (selectedUnitIds.length > 0 && cameraMode !== 'top-down') {
@@ -50,8 +56,9 @@ export function CameraController() {
         avg.z /= selectedUnits.length;
         targetRef.current.set(avg.x, avg.y, avg.z);
 
+        const cam = threeState.camera;
         if (cameraMode === 'first-person') {
-          camera.position.set(avg.x, avg.y + 1.6, avg.z);
+          cam.position.set(avg.x, avg.y + 1.6, avg.z);
         }
         if (controlsRef.current && cameraMode === 'third-person') {
           controlsRef.current.target.lerp(targetRef.current, 0.05);

@@ -1,5 +1,3 @@
-import { Vector3 } from 'three';
-
 export type CameraMode = 'first-person' | 'third-person' | 'top-down';
 
 export interface Unit {

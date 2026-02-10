@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Scene } from './components/Scene';
 import { HUD } from './components/HUD';
@@ -6,14 +6,7 @@ import { Minimap } from './components/Minimap';
 import { getRendererInfo } from './utils/webgpu';
 
 export default function App() {
-  const [rendererInfo, setRendererInfo] = useState<{
-    webgpu: boolean;
-    fallback: string;
-  } | null>(null);
-
-  useEffect(() => {
-    setRendererInfo(getRendererInfo());
-  }, []);
+  const rendererInfo = useMemo(() => getRendererInfo(), []);
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#000' }}>
@@ -29,8 +22,7 @@ export default function App() {
       </Canvas>
       <HUD />
       <Minimap />
-      {rendererInfo && (
-        <div
+      <div
           style={{
             position: 'absolute',
             bottom: '5px',
@@ -44,7 +36,6 @@ export default function App() {
           Renderer: {rendererInfo.fallback} | WebGPU:{' '}
           {rendererInfo.webgpu ? 'Available' : 'Unavailable'}
         </div>
-      )}
     </div>
   );
 }
