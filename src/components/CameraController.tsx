@@ -60,7 +60,7 @@ export function CameraController() {
       if (!isPointerLockedRef.current) return;
 
       fpEulerRef.current.y += e.movementX * FIRST_PERSON_SENSITIVITY;
-      fpEulerRef.current.x += e.movementY * FIRST_PERSON_SENSITIVITY;
+      fpEulerRef.current.x -= e.movementY * FIRST_PERSON_SENSITIVITY;
 
       // Clamp vertical look to avoid flipping
       fpEulerRef.current.x = Math.max(
