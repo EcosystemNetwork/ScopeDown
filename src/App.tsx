@@ -3,10 +3,17 @@ import { Canvas } from '@react-three/fiber';
 import { Scene } from './components/Scene';
 import { HUD } from './components/HUD';
 import { Minimap } from './components/Minimap';
+import { StartScreen } from './components/StartScreen';
 import { getRendererInfo } from './utils/webgpu';
+import { useGameStore } from './store/gameStore';
 
 export default function App() {
   const rendererInfo = useMemo(() => getRendererInfo(), []);
+  const gameScreen = useGameStore((s) => s.gameScreen);
+
+  if (gameScreen === 'start') {
+    return <StartScreen />;
+  }
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#000' }}>

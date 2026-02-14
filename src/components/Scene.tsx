@@ -4,6 +4,7 @@ import { Terrain } from './Terrain';
 import { Units } from './Units';
 import { Buildings } from './Buildings';
 import { SelectionBox } from './SelectionBox';
+import { Player } from './Player';
 import { useGameStore } from '../store/gameStore';
 
 export function Scene() {
@@ -32,6 +33,7 @@ export function Scene() {
 
       <CameraController />
       <Terrain />
+      <Player />
       <Units />
       <Buildings />
       <SelectionBox />

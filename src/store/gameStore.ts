@@ -1,6 +1,14 @@
 import { create } from 'zustand';
-import type { GameState, GameStatus, Unit, UnitType } from '../types/game';
+import type { GameState, GameStatus, PlayerState, Unit, UnitType } from '../types/game';
 import { UNIT_COSTS, UNIT_STATS } from '../types/game';
+
+const initialPlayer: PlayerState = {
+  position: [0, 0.5, 5],
+  velocity: [0, 0, 0],
+  isRunning: false,
+  isJumping: false,
+  isGrounded: true,
+};
 
 function moveToward(
   current: [number, number, number],
@@ -143,6 +151,7 @@ const initialUnits: Unit[] = [
 ];
 
 export const useGameStore = create<GameState>((set, get) => ({
+  gameScreen: 'start',
   cameraMode: 'top-down',
   units: initialUnits,
   buildings: [
@@ -185,6 +194,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   gameStatus: 'playing',
   gameTime: 0,
   nextUnitId: 100,
+  player: { ...initialPlayer },
+
+  setGameScreen: (screen) => set({ gameScreen: screen }),
 
   setCameraMode: (mode) => set({ cameraMode: mode }),
 
@@ -275,6 +287,11 @@ export const useGameStore = create<GameState>((set, get) => ({
   resetGame: () => {
     set(useGameStore.getInitialState());
   },
+
+  updatePlayer: (partial) =>
+    set((state) => ({
+      player: { ...state.player, ...partial },
+    })),
 
   tick: (delta) => {
     const state = get();
