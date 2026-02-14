@@ -9,33 +9,35 @@ const JUMP_FORCE = 8;
 const GRAVITY = -20;
 const GROUND_Y = 0.5;
 
-const keysPressed = new Set<string>();
-
 export function Player() {
   const ref = useRef<Mesh>(null);
   const player = useGameStore((s) => s.player);
   const updatePlayer = useGameStore((s) => s.updatePlayer);
   const velocityRef = useRef(new Vector3(0, 0, 0));
+  const lerpTarget = useRef(new Vector3(0, 0, 0));
+  const keysPressedRef = useRef(new Set<string>());
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    keysPressed.add(e.code);
+    keysPressedRef.current.add(e.code);
   }, []);
 
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
-    keysPressed.delete(e.code);
+    keysPressedRef.current.delete(e.code);
   }, []);
 
   useEffect(() => {
+    const keys = keysPressedRef.current;
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
-      keysPressed.clear();
+      keys.clear();
     };
   }, [handleKeyDown, handleKeyUp]);
 
   useFrame((_, delta) => {
+    const keysPressed = keysPressedRef.current;
     const clampedDelta = Math.min(delta, 0.05);
 
     const isRunning = keysPressed.has('KeyR');
@@ -93,10 +95,8 @@ export function Player() {
 
     // Smoothly interpolate mesh position
     if (ref.current) {
-      ref.current.position.lerp(
-        new Vector3(clampedX, newY, clampedZ),
-        0.3
-      );
+      lerpTarget.current.set(clampedX, newY, clampedZ);
+      ref.current.position.lerp(lerpTarget.current, 0.3);
     }
   });
 
