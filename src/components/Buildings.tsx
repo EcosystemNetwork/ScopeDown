@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useGameStore } from '../store/gameStore';
 import type { Building } from '../types/game';
 
@@ -12,7 +13,7 @@ const BUILDING_CONFIGS: Record<
   refinery: { size: [2.5, 1.2, 2.5], color: '#888844', emissive: '#ffff00' },
 };
 
-function BuildingMesh({ building }: { building: Building }) {
+const BuildingMesh = memo(function BuildingMesh({ building }: { building: Building }) {
   const config = BUILDING_CONFIGS[building.type];
   const teamColor = building.team === 'player' ? config.color : '#882222';
   const teamEmissive = building.team === 'player' ? config.emissive : '#ff0000';
@@ -74,7 +75,7 @@ function BuildingMesh({ building }: { building: Building }) {
       </group>
     </group>
   );
-}
+});
 
 export function Buildings() {
   const buildings = useGameStore((s) => s.buildings);

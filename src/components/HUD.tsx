@@ -1,11 +1,19 @@
+import { useEffect, useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
-import type { CameraMode } from '../types/game';
+import type { CameraMode, UnitType } from '../types/game';
+import { UNIT_COSTS } from '../types/game';
 
 const cameraModeLabels: Record<CameraMode, string> = {
   'first-person': '1ST PERSON',
   'third-person': '3RD PERSON',
   'top-down': 'TACTICAL',
 };
+
+const PRODUCIBLE_UNITS: { type: UnitType; label: string; key: string }[] = [
+  { type: 'soldier', label: 'SOLDIER', key: 'Q' },
+  { type: 'tank', label: 'TANK', key: 'W' },
+  { type: 'mech', label: 'MECH', key: 'E' },
+];
 
 export function HUD() {
   const cameraMode = useGameStore((s) => s.cameraMode);
@@ -15,8 +23,65 @@ export function HUD() {
   const units = useGameStore((s) => s.units);
   const isPaused = useGameStore((s) => s.isPaused);
   const togglePause = useGameStore((s) => s.togglePause);
+  const gameStatus = useGameStore((s) => s.gameStatus);
+  const produceUnit = useGameStore((s) => s.produceUnit);
+  const resetGame = useGameStore((s) => s.resetGame);
+  const gameTime = useGameStore((s) => s.gameTime);
 
   const selectedUnits = units.filter((u) => selectedUnitIds.includes(u.id));
+
+  // Keyboard shortcuts
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (gameStatus !== 'playing') {
+        if (e.key === 'r' || e.key === 'R') {
+          resetGame();
+        }
+        return;
+      }
+      switch (e.key) {
+        case 'p':
+        case 'P':
+          togglePause();
+          break;
+        case '1':
+          setCameraMode('top-down');
+          break;
+        case '2':
+          setCameraMode('third-person');
+          break;
+        case '3':
+          setCameraMode('first-person');
+          break;
+        case 'q':
+        case 'Q':
+          produceUnit('soldier');
+          break;
+        case 'w':
+        case 'W':
+          if (!e.ctrlKey && !e.metaKey) {
+            produceUnit('tank');
+          }
+          break;
+        case 'e':
+        case 'E':
+          produceUnit('mech');
+          break;
+      }
+    },
+    [gameStatus, togglePause, setCameraMode, produceUnit, resetGame]
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
+  const formatTime = (t: number) => {
+    const mins = Math.floor(t / 60);
+    const secs = Math.floor(t % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div
@@ -46,6 +111,7 @@ export function HUD() {
           <span>
             🔋 POWER: {resources.power}/{resources.maxPower}
           </span>
+          <span style={{ color: '#4a6a7a' }}>⏱ {formatTime(gameTime)}</span>
         </div>
         <div style={{ fontSize: '18px', fontWeight: 'bold', letterSpacing: '3px' }}>
           SCOPEDOWN
@@ -68,7 +134,7 @@ export function HUD() {
         }}
       >
         {(['top-down', 'third-person', 'first-person'] as CameraMode[]).map(
-          (mode) => (
+          (mode, i) => (
             <button
               key={mode}
               onClick={() => setCameraMode(mode)}
@@ -87,7 +153,7 @@ export function HUD() {
                 transition: 'all 0.2s',
               }}
             >
-              {cameraModeLabels[mode]}
+              [{i + 1}] {cameraModeLabels[mode]}
             </button>
           )
         )}
@@ -107,8 +173,66 @@ export function HUD() {
             marginTop: '10px',
           }}
         >
-          {isPaused ? '▶ RESUME' : '⏸ PAUSE'}
+          {isPaused ? '▶ RESUME [P]' : '⏸ PAUSE [P]'}
         </button>
+      </div>
+
+      {/* Unit Production Panel */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '180px',
+          left: '20px',
+          background: 'rgba(0,20,40,0.85)',
+          border: '1px solid #1a3a4a',
+          padding: '10px',
+          pointerEvents: 'auto',
+        }}
+      >
+        <div
+          style={{
+            fontSize: '10px',
+            marginBottom: '8px',
+            borderBottom: '1px solid #1a3a4a',
+            paddingBottom: '4px',
+            letterSpacing: '2px',
+            color: '#4a6a7a',
+          }}
+        >
+          PRODUCE UNITS
+        </div>
+        <div style={{ display: 'flex', gap: '5px' }}>
+          {PRODUCIBLE_UNITS.map(({ type, label, key }) => (
+            <button
+              key={type}
+              onClick={() => produceUnit(type)}
+              disabled={resources.credits < UNIT_COSTS[type]}
+              style={{
+                background:
+                  resources.credits >= UNIT_COSTS[type]
+                    ? 'rgba(0,255,204,0.15)'
+                    : 'rgba(40,40,40,0.5)',
+                border: `1px solid ${resources.credits >= UNIT_COSTS[type] ? '#1a3a4a' : '#1a1a1a'}`,
+                color:
+                  resources.credits >= UNIT_COSTS[type] ? '#00ffcc' : '#333',
+                padding: '6px 10px',
+                fontSize: '10px',
+                cursor:
+                  resources.credits >= UNIT_COSTS[type]
+                    ? 'pointer'
+                    : 'not-allowed',
+                fontFamily: '"Courier New", monospace',
+                letterSpacing: '1px',
+              }}
+            >
+              [{key}] {label}
+              <br />
+              <span style={{ fontSize: '9px', color: '#4a6a7a' }}>
+                ⚡{UNIT_COSTS[type]}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Selected units panel */}
@@ -144,22 +268,26 @@ export function HUD() {
                 fontSize: '11px',
                 padding: '3px 0',
                 color: '#88aacc',
+                gap: '10px',
               }}
             >
               <span>{unit.type.toUpperCase()}</span>
               <span>
                 HP: {unit.health}/{unit.maxHealth}
               </span>
+              <span style={{ color: '#4a6a7a' }}>
+                DMG: {unit.damage}
+              </span>
             </div>
           ))}
         </div>
       )}
 
-      {/* Controls help */}
+      {/* Controls help - moved to not overlap minimap */}
       <div
         style={{
           position: 'absolute',
-          bottom: '20px',
+          bottom: '180px',
           right: '20px',
           fontSize: '10px',
           color: '#3a5a6a',
@@ -172,10 +300,12 @@ export function HUD() {
         <div>RIGHT CLICK - Move Units</div>
         <div>SCROLL - Zoom</div>
         <div>MIDDLE MOUSE - Rotate</div>
+        <div>Q/W/E - Produce Units</div>
+        <div>P - Pause | 1/2/3 - Camera</div>
       </div>
 
       {/* Pause overlay */}
-      {isPaused && (
+      {isPaused && gameStatus === 'playing' && (
         <div
           style={{
             position: 'absolute',
@@ -190,6 +320,56 @@ export function HUD() {
           }}
         >
           PAUSED
+        </div>
+      )}
+
+      {/* Game Over overlay */}
+      {gameStatus !== 'playing' && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0,0,0,0.7)',
+            pointerEvents: 'auto',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '56px',
+              fontWeight: 'bold',
+              letterSpacing: '10px',
+              color: gameStatus === 'won' ? '#00ffcc' : '#ff4400',
+              textShadow: `0 0 30px ${gameStatus === 'won' ? 'rgba(0,255,204,0.5)' : 'rgba(255,68,0,0.5)'}`,
+              marginBottom: '20px',
+            }}
+          >
+            {gameStatus === 'won' ? 'VICTORY' : 'DEFEATED'}
+          </div>
+          <div style={{ fontSize: '14px', color: '#4a6a7a', marginBottom: '30px' }}>
+            Time: {formatTime(gameTime)}
+          </div>
+          <button
+            onClick={resetGame}
+            style={{
+              background: 'rgba(0,255,204,0.2)',
+              border: '1px solid #00ffcc',
+              color: '#00ffcc',
+              padding: '12px 30px',
+              fontSize: '16px',
+              cursor: 'pointer',
+              fontFamily: '"Courier New", monospace',
+              letterSpacing: '3px',
+            }}
+          >
+            [R] PLAY AGAIN
+          </button>
         </div>
       )}
     </div>

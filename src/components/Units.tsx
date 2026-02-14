@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { memo, useRef, useCallback } from 'react';
 import { Mesh, Vector3 } from 'three';
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useGameStore } from '../store/gameStore';
@@ -25,7 +25,7 @@ const UNIT_SIZES: Record<Unit['type'], [number, number, number]> = {
   harvester: [1, 0.6, 1],
 };
 
-function UnitMesh({ unit }: { unit: Unit }) {
+const UnitMesh = memo(function UnitMesh({ unit }: { unit: Unit }) {
   const ref = useRef<Mesh>(null);
   const selectUnits = useGameStore((s) => s.selectUnits);
   const selectedUnitIds = useGameStore((s) => s.selectedUnitIds);
@@ -64,6 +64,8 @@ function UnitMesh({ unit }: { unit: Unit }) {
       ? UNIT_COLORS[unit.type]
       : ENEMY_COLORS[unit.type];
   const size = UNIT_SIZES[unit.type];
+  const healthRatio = unit.health / unit.maxHealth;
+  const isAttacking = unit.attackTargetId !== null;
 
   return (
     <group>
@@ -76,26 +78,24 @@ function UnitMesh({ unit }: { unit: Unit }) {
         <boxGeometry args={size} />
         <meshStandardMaterial
           color={color}
-          emissive={unit.selected ? '#ffffff' : color}
-          emissiveIntensity={unit.selected ? 0.3 : 0.1}
+          emissive={unit.selected ? '#ffffff' : isAttacking ? '#ff0000' : color}
+          emissiveIntensity={unit.selected ? 0.3 : isAttacking ? 0.4 : 0.1}
         />
       </mesh>
 
-      {/* Health bar */}
-      {unit.team === 'player' && (
-        <group position={[unit.position[0], unit.position[1] + size[1] + 0.3, unit.position[2]]}>
-          <mesh>
-            <planeGeometry args={[0.8, 0.08]} />
-            <meshBasicMaterial color="#333333" />
-          </mesh>
-          <mesh position={[(unit.health / unit.maxHealth - 1) * 0.4, 0, 0.001]}>
-            <planeGeometry args={[0.8 * (unit.health / unit.maxHealth), 0.08]} />
-            <meshBasicMaterial
-              color={unit.health / unit.maxHealth > 0.5 ? '#00ff00' : '#ff4400'}
-            />
-          </mesh>
-        </group>
-      )}
+      {/* Health bar - show for all units */}
+      <group position={[unit.position[0], unit.position[1] + size[1] + 0.3, unit.position[2]]}>
+        <mesh>
+          <planeGeometry args={[0.8, 0.08]} />
+          <meshBasicMaterial color="#333333" />
+        </mesh>
+        <mesh position={[(healthRatio - 1) * 0.4, 0, 0.001]}>
+          <planeGeometry args={[0.8 * healthRatio, 0.08]} />
+          <meshBasicMaterial
+            color={healthRatio > 0.5 ? '#00ff00' : '#ff4400'}
+          />
+        </mesh>
+      </group>
 
       {/* Selection ring */}
       {unit.selected && (
@@ -107,9 +107,20 @@ function UnitMesh({ unit }: { unit: Unit }) {
           <meshBasicMaterial color="#00ffaa" transparent opacity={0.8} />
         </mesh>
       )}
+
+      {/* Attack range indicator when selected */}
+      {unit.selected && unit.damage > 0 && (
+        <mesh
+          position={[unit.position[0], 0.02, unit.position[2]]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <ringGeometry args={[unit.attackRange - 0.1, unit.attackRange, 64]} />
+          <meshBasicMaterial color="#ff4400" transparent opacity={0.15} />
+        </mesh>
+      )}
     </group>
   );
-}
+});
 
 export function Units() {
   const units = useGameStore((s) => s.units);

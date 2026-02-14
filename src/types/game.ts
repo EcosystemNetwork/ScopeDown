@@ -1,5 +1,7 @@
 export type CameraMode = 'first-person' | 'third-person' | 'top-down';
 
+export type GameStatus = 'playing' | 'won' | 'lost';
+
 export interface Unit {
   id: string;
   position: [number, number, number];
@@ -7,8 +9,13 @@ export interface Unit {
   health: number;
   maxHealth: number;
   speed: number;
+  damage: number;
+  attackRange: number;
+  attackCooldown: number;
+  lastAttackTime: number;
   selected: boolean;
   targetPosition: [number, number, number] | null;
+  attackTargetId: string | null;
   team: 'player' | 'enemy';
 }
 
@@ -27,6 +34,22 @@ export interface GameResources {
   maxPower: number;
 }
 
+export type UnitType = Unit['type'];
+
+export const UNIT_COSTS: Record<UnitType, number> = {
+  soldier: 200,
+  tank: 500,
+  mech: 400,
+  harvester: 300,
+};
+
+export const UNIT_STATS: Record<UnitType, { health: number; speed: number; damage: number; attackRange: number; attackCooldown: number }> = {
+  soldier: { health: 100, speed: 3, damage: 10, attackRange: 5, attackCooldown: 1 },
+  tank: { health: 250, speed: 2, damage: 25, attackRange: 8, attackCooldown: 2 },
+  mech: { health: 200, speed: 1.5, damage: 20, attackRange: 6, attackCooldown: 1.5 },
+  harvester: { health: 150, speed: 2, damage: 0, attackRange: 0, attackCooldown: 0 },
+};
+
 export interface GameState {
   cameraMode: CameraMode;
   units: Unit[];
@@ -34,6 +57,9 @@ export interface GameState {
   resources: GameResources;
   selectedUnitIds: string[];
   isPaused: boolean;
+  gameStatus: GameStatus;
+  gameTime: number;
+  nextUnitId: number;
   setCameraMode: (mode: CameraMode) => void;
   selectUnits: (ids: string[]) => void;
   moveSelectedUnits: (target: [number, number, number]) => void;
@@ -44,4 +70,6 @@ export interface GameState {
   damageUnit: (id: string, amount: number) => void;
   togglePause: () => void;
   tick: (delta: number) => void;
+  produceUnit: (unitType: UnitType) => void;
+  resetGame: () => void;
 }
