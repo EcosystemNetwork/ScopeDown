@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
 import { Mesh, DoubleSide } from 'three';
 import { useFrame } from '@react-three/fiber';
 
@@ -8,7 +8,7 @@ function GridFloor() {
   );
 }
 
-function TerrainDecoration({ position }: { position: [number, number, number] }) {
+const TerrainDecoration = memo(function TerrainDecoration({ position }: { position: [number, number, number] }) {
   const ref = useRef<Mesh>(null);
   useFrame((_, delta) => {
     if (ref.current) {
@@ -28,7 +28,7 @@ function TerrainDecoration({ position }: { position: [number, number, number] })
       />
     </mesh>
   );
-}
+});
 
 const decorations: [number, number, number][] = [
   [10, 0.3, 10],

@@ -35,6 +35,19 @@ describe('gameStore', () => {
     it('should start unpaused', () => {
       expect(useGameStore.getState().isPaused).toBe(false);
     });
+
+    it('should start with playing status', () => {
+      expect(useGameStore.getState().gameStatus).toBe('playing');
+    });
+
+    it('should have combat stats on units', () => {
+      const { units } = useGameStore.getState();
+      const soldier = units.find((u) => u.type === 'soldier' && u.team === 'player');
+      expect(soldier).toBeDefined();
+      expect(soldier!.damage).toBeGreaterThan(0);
+      expect(soldier!.attackRange).toBeGreaterThan(0);
+      expect(soldier!.attackCooldown).toBeGreaterThan(0);
+    });
   });
 
   describe('setCameraMode', () => {
@@ -94,6 +107,19 @@ describe('gameStore', () => {
       const unit2 = useGameStore.getState().units.find((u) => u.id === 'unit-2');
       expect(unit2?.targetPosition).toBeNull();
     });
+
+    it('should clear attack target when issuing move command', () => {
+      // Set an attack target first
+      useGameStore.setState((state) => ({
+        units: state.units.map((u) =>
+          u.id === 'unit-1' ? { ...u, selected: true, attackTargetId: 'enemy-1' } : u
+        ),
+        selectedUnitIds: ['unit-1'],
+      }));
+      useGameStore.getState().moveSelectedUnits([10, 0, 10]);
+      const unit = useGameStore.getState().units.find((u) => u.id === 'unit-1');
+      expect(unit?.attackTargetId).toBeNull();
+    });
   });
 
   describe('addUnit', () => {
@@ -106,8 +132,13 @@ describe('gameStore', () => {
         health: 100,
         maxHealth: 100,
         speed: 3,
+        damage: 10,
+        attackRange: 5,
+        attackCooldown: 1,
+        lastAttackTime: 0,
         selected: false,
         targetPosition: null,
+        attackTargetId: null,
         team: 'player',
       });
       expect(useGameStore.getState().units.length).toBe(initialCount + 1);
@@ -197,6 +228,59 @@ describe('gameStore', () => {
       const after = useGameStore.getState().units.find((u) => u.id === 'unit-1')!;
       expect(after.targetPosition).toBeNull();
     });
+
+    it('should increment game time', () => {
+      useGameStore.getState().tick(1);
+      expect(useGameStore.getState().gameTime).toBeGreaterThan(0);
+    });
+
+    it('should remove dead units (health <= 0)', () => {
+      useGameStore.getState().damageUnit('unit-1', 200);
+      const beforeCount = useGameStore.getState().units.length;
+      useGameStore.getState().tick(0.016);
+      const afterCount = useGameStore.getState().units.length;
+      expect(afterCount).toBe(beforeCount - 1);
+    });
+  });
+
+  describe('produceUnit', () => {
+    it('should create a new unit and deduct credits', () => {
+      const initialCount = useGameStore.getState().units.length;
+      const initialCredits = useGameStore.getState().resources.credits;
+      useGameStore.getState().produceUnit('soldier');
+      const state = useGameStore.getState();
+      expect(state.units.length).toBe(initialCount + 1);
+      expect(state.resources.credits).toBe(initialCredits - 200);
+    });
+
+    it('should not produce a unit if credits are insufficient', () => {
+      useGameStore.setState({ resources: { credits: 50, power: 100, maxPower: 150 } });
+      const initialCount = useGameStore.getState().units.length;
+      useGameStore.getState().produceUnit('soldier');
+      expect(useGameStore.getState().units.length).toBe(initialCount);
+    });
+
+    it('should not produce a unit without a barracks', () => {
+      useGameStore.setState((state) => ({
+        buildings: state.buildings.filter((b) => b.type !== 'barracks'),
+      }));
+      const initialCount = useGameStore.getState().units.length;
+      useGameStore.getState().produceUnit('soldier');
+      expect(useGameStore.getState().units.length).toBe(initialCount);
+    });
+  });
+
+  describe('resetGame', () => {
+    it('should reset the game to initial state', () => {
+      useGameStore.getState().selectUnits(['unit-1']);
+      useGameStore.getState().togglePause();
+      useGameStore.getState().resetGame();
+      const state = useGameStore.getState();
+      expect(state.isPaused).toBe(false);
+      expect(state.selectedUnitIds).toEqual([]);
+      expect(state.gameStatus).toBe('playing');
+      expect(state.gameTime).toBe(0);
+    });
   });
 
   describe('addBuilding', () => {
@@ -211,6 +295,29 @@ describe('gameStore', () => {
         team: 'player',
       });
       expect(useGameStore.getState().buildings.length).toBe(initialCount + 1);
+    });
+  });
+
+  describe('resource income', () => {
+    it('should generate base income every 5 seconds', () => {
+      const initialCredits = useGameStore.getState().resources.credits;
+      // Tick past the 5 second mark
+      useGameStore.getState().tick(5.1);
+      expect(useGameStore.getState().resources.credits).toBeGreaterThan(initialCredits);
+    });
+  });
+
+  describe('game over conditions', () => {
+    it('should set status to won when all enemy units and buildings are destroyed', () => {
+      // Remove all enemy units
+      useGameStore.setState((state) => ({
+        units: state.units.filter((u) => u.team === 'player'),
+        buildings: state.buildings.map((b) =>
+          b.team === 'enemy' ? { ...b, health: 0 } : b
+        ),
+      }));
+      useGameStore.getState().tick(0.016);
+      expect(useGameStore.getState().gameStatus).toBe('won');
     });
   });
 });
