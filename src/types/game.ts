@@ -1,5 +1,7 @@
 export type CameraMode = 'first-person' | 'third-person' | 'top-down';
 
+export type GameScreen = 'start' | 'playing';
+
 export type GameStatus = 'playing' | 'won' | 'lost';
 
 export interface Unit {
@@ -50,7 +52,16 @@ export const UNIT_STATS: Record<UnitType, { health: number; speed: number; damag
   harvester: { health: 150, speed: 2, damage: 0, attackRange: 0, attackCooldown: 0 },
 };
 
+export interface PlayerState {
+  position: [number, number, number];
+  velocity: [number, number, number];
+  isRunning: boolean;
+  isJumping: boolean;
+  isGrounded: boolean;
+}
+
 export interface GameState {
+  gameScreen: GameScreen;
   cameraMode: CameraMode;
   units: Unit[];
   buildings: Building[];
@@ -60,6 +71,8 @@ export interface GameState {
   gameStatus: GameStatus;
   gameTime: number;
   nextUnitId: number;
+  player: PlayerState;
+  setGameScreen: (screen: GameScreen) => void;
   setCameraMode: (mode: CameraMode) => void;
   selectUnits: (ids: string[]) => void;
   moveSelectedUnits: (target: [number, number, number]) => void;
@@ -72,4 +85,5 @@ export interface GameState {
   tick: (delta: number) => void;
   produceUnit: (unitType: UnitType) => void;
   resetGame: () => void;
+  updatePlayer: (partial: Partial<PlayerState>) => void;
 }

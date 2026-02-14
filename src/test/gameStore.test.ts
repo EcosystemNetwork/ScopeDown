@@ -8,6 +8,10 @@ describe('gameStore', () => {
   });
 
   describe('initial state', () => {
+    it('should start on the start screen', () => {
+      expect(useGameStore.getState().gameScreen).toBe('start');
+    });
+
     it('should start with top-down camera mode', () => {
       expect(useGameStore.getState().cameraMode).toBe('top-down');
     });
@@ -318,6 +322,63 @@ describe('gameStore', () => {
       }));
       useGameStore.getState().tick(0.016);
       expect(useGameStore.getState().gameStatus).toBe('won');
+    });
+  });
+
+  describe('setGameScreen', () => {
+    it('should switch from start to playing', () => {
+      expect(useGameStore.getState().gameScreen).toBe('start');
+      useGameStore.getState().setGameScreen('playing');
+      expect(useGameStore.getState().gameScreen).toBe('playing');
+    });
+
+    it('should switch back to start', () => {
+      useGameStore.getState().setGameScreen('playing');
+      useGameStore.getState().setGameScreen('start');
+      expect(useGameStore.getState().gameScreen).toBe('start');
+    });
+  });
+
+  describe('player state', () => {
+    it('should start with initial player state', () => {
+      const { player } = useGameStore.getState();
+      expect(player.position).toEqual([0, 0.5, 5]);
+      expect(player.velocity).toEqual([0, 0, 0]);
+      expect(player.isRunning).toBe(false);
+      expect(player.isJumping).toBe(false);
+      expect(player.isGrounded).toBe(true);
+    });
+
+    it('should update player position', () => {
+      useGameStore.getState().updatePlayer({ position: [5, 1, 3] });
+      expect(useGameStore.getState().player.position).toEqual([5, 1, 3]);
+    });
+
+    it('should update player running state', () => {
+      useGameStore.getState().updatePlayer({ isRunning: true });
+      expect(useGameStore.getState().player.isRunning).toBe(true);
+    });
+
+    it('should update player jumping state', () => {
+      useGameStore.getState().updatePlayer({ isJumping: true, isGrounded: false });
+      const { player } = useGameStore.getState();
+      expect(player.isJumping).toBe(true);
+      expect(player.isGrounded).toBe(false);
+    });
+
+    it('should preserve other player fields on partial update', () => {
+      useGameStore.getState().updatePlayer({ isRunning: true });
+      const { player } = useGameStore.getState();
+      expect(player.position).toEqual([0, 0.5, 5]);
+      expect(player.isRunning).toBe(true);
+    });
+
+    it('should reset player state on resetGame', () => {
+      useGameStore.getState().updatePlayer({ position: [10, 5, 10], isRunning: true });
+      useGameStore.getState().resetGame();
+      const { player } = useGameStore.getState();
+      expect(player.position).toEqual([0, 0.5, 5]);
+      expect(player.isRunning).toBe(false);
     });
   });
 });
