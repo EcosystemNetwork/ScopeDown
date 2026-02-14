@@ -30,3 +30,76 @@ canvas {
 button:hover {
   filter: brightness(1.2);
 }
+
+/* Start Menu Animations */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes glitch-1 {
+  0%, 100% { clip-path: inset(0 0 95% 0); transform: translate(0); }
+  10% { clip-path: inset(20% 0 60% 0); transform: translate(-3px, 2px); }
+  20% { clip-path: inset(60% 0 10% 0); transform: translate(3px, -1px); }
+  30% { clip-path: inset(40% 0 30% 0); transform: translate(-2px, 1px); }
+  40%, 100% { clip-path: inset(0 0 95% 0); transform: translate(0); }
+}
+
+@keyframes glitch-2 {
+  0%, 100% { clip-path: inset(95% 0 0 0); transform: translate(0); }
+  10% { clip-path: inset(10% 0 50% 0); transform: translate(3px, -2px); }
+  20% { clip-path: inset(50% 0 20% 0); transform: translate(-3px, 1px); }
+  30% { clip-path: inset(30% 0 40% 0); transform: translate(2px, -1px); }
+  40%, 100% { clip-path: inset(95% 0 0 0); transform: translate(0); }
+}
+
+@keyframes title-glow {
+  0%, 100% { text-shadow: 0 0 40px rgba(0,255,204,0.4), 0 0 80px rgba(0,255,204,0.15), 0 0 120px rgba(0,255,204,0.05); }
+  50% { text-shadow: 0 0 60px rgba(0,255,204,0.6), 0 0 100px rgba(0,255,204,0.3), 0 0 160px rgba(0,255,204,0.1); }
+}
+
+@keyframes particle-float {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes subtitle-reveal {
+  from { letter-spacing: 20px; opacity: 0; }
+  to { letter-spacing: 8px; opacity: 1; }
+}
+
+@keyframes menu-slide-in {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes border-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(0,255,204,0.2), inset 0 0 5px rgba(0,255,204,0.1); }
+  50% { box-shadow: 0 0 15px rgba(0,255,204,0.4), inset 0 0 10px rgba(0,255,204,0.2); }
+}
+
+@keyframes logo-line {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+@keyframes hud-flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+  96% { opacity: 0.6; }
+  97% { opacity: 1; }
+}
