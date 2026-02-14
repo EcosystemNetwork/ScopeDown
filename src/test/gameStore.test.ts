@@ -344,6 +344,7 @@ describe('gameStore', () => {
       const { player } = useGameStore.getState();
       expect(player.position).toEqual([0, 0.5, 5]);
       expect(player.velocity).toEqual([0, 0, 0]);
+      expect(player.rotation).toBe(0);
       expect(player.isRunning).toBe(false);
       expect(player.isJumping).toBe(false);
       expect(player.isGrounded).toBe(true);
@@ -379,6 +380,25 @@ describe('gameStore', () => {
       const { player } = useGameStore.getState();
       expect(player.position).toEqual([0, 0.5, 5]);
       expect(player.isRunning).toBe(false);
+    });
+
+    it('should update player rotation', () => {
+      useGameStore.getState().updatePlayer({ rotation: Math.PI / 4 });
+      expect(useGameStore.getState().player.rotation).toBe(Math.PI / 4);
+    });
+
+    it('should reset player rotation on resetGame', () => {
+      useGameStore.getState().updatePlayer({ rotation: 1.5 });
+      useGameStore.getState().resetGame();
+      expect(useGameStore.getState().player.rotation).toBe(0);
+    });
+
+    it('should preserve rotation on other partial updates', () => {
+      useGameStore.getState().updatePlayer({ rotation: Math.PI });
+      useGameStore.getState().updatePlayer({ isRunning: true });
+      const { player } = useGameStore.getState();
+      expect(player.rotation).toBe(Math.PI);
+      expect(player.isRunning).toBe(true);
     });
   });
 });

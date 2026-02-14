@@ -55,6 +55,7 @@ export const UNIT_STATS: Record<UnitType, { health: number; speed: number; damag
 export interface PlayerState {
   position: [number, number, number];
   velocity: [number, number, number];
+  rotation: number;
   isRunning: boolean;
   isJumping: boolean;
   isGrounded: boolean;
