@@ -91,8 +91,8 @@ export function CameraController() {
     }
 
     if (cameraMode === 'first-person') {
-      // Reset first-person euler to look along -Z (default forward)
-      fpEulerRef.current.set(0, Math.PI, 0, 'YXZ');
+      // Reset first-person euler to default forward (-Z direction)
+      fpEulerRef.current.set(0, 0, 0, 'YXZ');
     }
 
     if (controlsRef.current) {
