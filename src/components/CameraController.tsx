@@ -20,8 +20,7 @@ function applyCameraConfig(cam: PerspectiveCamera, config: { position: Vector3; 
 
 export function CameraController() {
   const cameraMode = useGameStore((s) => s.cameraMode);
-  const selectedUnitIds = useGameStore((s) => s.selectedUnitIds);
-  const units = useGameStore((s) => s.units);
+  const player = useGameStore((s) => s.player);
   const threeState = useThree();
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const targetRef = useRef(new Vector3(0, 0, 0));
@@ -33,36 +32,38 @@ export function CameraController() {
       applyCameraConfig(cam, config);
     }
     if (controlsRef.current) {
-      controlsRef.current.target.set(0, 0, 0);
+      // Initialize controls target to player position for first-person and third-person
+      if (cameraMode === 'first-person' || cameraMode === 'third-person') {
+        controlsRef.current.target.set(player.position[0], player.position[1], player.position[2]);
+      } else {
+        controlsRef.current.target.set(0, 0, 0);
+      }
       controlsRef.current.update();
     }
-  }, [cameraMode, threeState.camera]);
+  }, [cameraMode, threeState.camera, player.position]);
 
   useFrame(() => {
-    if (selectedUnitIds.length > 0 && cameraMode !== 'top-down') {
-      const selectedUnits = units.filter((u) => selectedUnitIds.includes(u.id));
-      if (selectedUnits.length > 0) {
-        const avg = selectedUnits.reduce(
-          (acc, u) => {
-            acc.x += u.position[0];
-            acc.y += u.position[1];
-            acc.z += u.position[2];
-            return acc;
-          },
-          { x: 0, y: 0, z: 0 }
-        );
-        avg.x /= selectedUnits.length;
-        avg.y /= selectedUnits.length;
-        avg.z /= selectedUnits.length;
-        targetRef.current.set(avg.x, avg.y, avg.z);
+    // Follow player position in first-person and third-person modes
+    if (cameraMode !== 'top-down') {
+      const playerPos = player.position;
+      targetRef.current.set(playerPos[0], playerPos[1], playerPos[2]);
 
-        const cam = threeState.camera;
-        if (cameraMode === 'first-person') {
-          cam.position.set(avg.x, avg.y + 1.6, avg.z);
-        }
-        if (controlsRef.current && cameraMode === 'third-person') {
-          controlsRef.current.target.lerp(targetRef.current, 0.05);
-        }
+      const cam = threeState.camera;
+      if (cameraMode === 'first-person') {
+        // First-person: camera positioned at player's eye level
+        cam.position.set(playerPos[0], playerPos[1] + 1.6, playerPos[2]);
+      } else if (cameraMode === 'third-person' && controlsRef.current) {
+        // Third-person: smoothly follow player with orbit controls
+        controlsRef.current.target.lerp(targetRef.current, 0.1);
+        
+        // Keep camera relative to player position
+        const offset = new Vector3(0, 8, 12);
+        const targetCameraPos = new Vector3(
+          playerPos[0] + offset.x,
+          playerPos[1] + offset.y,
+          playerPos[2] + offset.z
+        );
+        cam.position.lerp(targetCameraPos, 0.05);
       }
     }
   });
