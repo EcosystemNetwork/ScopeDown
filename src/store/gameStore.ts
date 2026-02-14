@@ -5,6 +5,7 @@ import { UNIT_COSTS, UNIT_STATS } from '../types/game';
 const initialPlayer: PlayerState = {
   position: [0, 0.5, 5],
   velocity: [0, 0, 0],
+  rotation: 0,
   isRunning: false,
   isJumping: false,
   isGrounded: true,

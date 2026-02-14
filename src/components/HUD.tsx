@@ -295,13 +295,35 @@ export function HUD() {
           lineHeight: '1.6',
         }}
       >
-        <div>LEFT CLICK - Select Unit</div>
-        <div>SHIFT+CLICK - Multi Select</div>
-        <div>RIGHT CLICK - Move Units</div>
-        <div>SCROLL - Zoom</div>
-        <div>MIDDLE MOUSE - Rotate</div>
-        <div>Q/W/E - Produce Units</div>
-        <div>P - Pause | 1/2/3 - Camera</div>
+        {cameraMode === 'first-person' ? (
+          <>
+            <div>CLICK TO LOOK AROUND</div>
+            <div>WASD - Move (Camera Relative)</div>
+            <div>R - Run | SPACE - Jump</div>
+            <div>ESC - Release Mouse</div>
+            <div>P - Pause | 1/2/3 - Camera</div>
+          </>
+        ) : cameraMode === 'third-person' ? (
+          <>
+            <div>WASD - Move (Camera Relative)</div>
+            <div>R - Run | SPACE - Jump</div>
+            <div>SCROLL - Zoom</div>
+            <div>MIDDLE/RIGHT MOUSE - Rotate</div>
+            <div>Q/W/E - Produce Units</div>
+            <div>P - Pause | 1/2/3 - Camera</div>
+          </>
+        ) : (
+          <>
+            <div>LEFT CLICK - Select Unit</div>
+            <div>SHIFT+CLICK - Multi Select</div>
+            <div>RIGHT CLICK - Move Units</div>
+            <div>SCROLL - Zoom</div>
+            <div>MIDDLE MOUSE - Rotate</div>
+            <div>WASD - Move Player</div>
+            <div>Q/W/E - Produce Units</div>
+            <div>P - Pause | 1/2/3 - Camera</div>
+          </>
+        )}
       </div>
 
       {/* Pause overlay */}
