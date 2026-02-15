@@ -12,7 +12,8 @@ const CAMERA_CONFIGS: Record<CameraMode, { position: Vector3; fov: number }> = {
   'top-down': { position: new Vector3(0, 30, 0.1), fov: 50 },
 };
 
-const THIRD_PERSON_OFFSET = new Vector3(0, 8, 12);
+const THIRD_PERSON_OFFSET_Y = 8;
+const THIRD_PERSON_OFFSET_DIST = 12;
 const THIRD_PERSON_TARGET_SMOOTHNESS = 0.1;
 const THIRD_PERSON_CAMERA_SMOOTHNESS = 0.05;
 
@@ -115,18 +116,19 @@ export function CameraController() {
       cam.position.set(playerPos[0], playerPos[1] + 1.6, playerPos[2]);
       cam.rotation.copy(fpEulerRef.current);
     } else if (cameraMode === 'third-person') {
-      // Third-person: smoothly follow player with orbit controls
+      // Third-person: smoothly follow player, camera behind player based on rotation
       targetRef.current.set(playerPos[0], playerPos[1], playerPos[2]);
 
       const cam = threeState.camera;
       if (controlsRef.current) {
         controlsRef.current.target.lerp(targetRef.current, THIRD_PERSON_TARGET_SMOOTHNESS);
 
-        // Keep camera relative to player position
+        // Position camera behind player using player's Y-axis rotation (radians)
+        const rot = player.rotation;
         targetCameraPosRef.current.set(
-          playerPos[0] + THIRD_PERSON_OFFSET.x,
-          playerPos[1] + THIRD_PERSON_OFFSET.y,
-          playerPos[2] + THIRD_PERSON_OFFSET.z
+          playerPos[0] - Math.sin(rot) * THIRD_PERSON_OFFSET_DIST,
+          playerPos[1] + THIRD_PERSON_OFFSET_Y,
+          playerPos[2] - Math.cos(rot) * THIRD_PERSON_OFFSET_DIST
         );
         cam.position.lerp(targetCameraPosRef.current, THIRD_PERSON_CAMERA_SMOOTHNESS);
       }
