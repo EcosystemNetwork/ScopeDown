@@ -229,9 +229,8 @@ function loadFromLocalStorage(slot: number): Partial<GameState> | null {
       return null;
     }
 
-    const parsed = JSON.parse(data);
-    delete parsed.savedAt; // Remove metadata
-    return parsed;
+    const { savedAt, ...gameState } = JSON.parse(data);
+    return gameState;
   } catch (error) {
     console.error('Failed to load from localStorage:', error);
     return null;

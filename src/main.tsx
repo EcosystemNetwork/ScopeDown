@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { initDatabase, initializeTables } from './services/database';
-import { ThirdwebAppProvider } from './components/ThirdwebProvider';
 
 // Initialize database connection
 initDatabase();
@@ -15,8 +14,6 @@ initializeTables().catch((error) => {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThirdwebAppProvider>
-      <App />
-    </ThirdwebAppProvider>
+    <App />
   </StrictMode>
 );
