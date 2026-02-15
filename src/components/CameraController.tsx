@@ -123,7 +123,7 @@ export function CameraController() {
       if (controlsRef.current) {
         controlsRef.current.target.lerp(targetRef.current, THIRD_PERSON_TARGET_SMOOTHNESS);
 
-        // Position camera behind player using player's rotation
+        // Position camera behind player using player's Y-axis rotation (radians)
         const rot = player.rotation;
         targetCameraPosRef.current.set(
           playerPos[0] - Math.sin(rot) * THIRD_PERSON_OFFSET_DIST,
