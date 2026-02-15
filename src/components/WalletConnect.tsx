@@ -2,8 +2,14 @@ import { createThirdwebClient } from 'thirdweb';
 import { ConnectButton } from 'thirdweb/react';
 
 // Create Thirdweb client with client ID from env
+const clientId = import.meta.env.VITE_THIRDWEB_CLIENT_ID;
+
+if (!clientId) {
+  console.warn('VITE_THIRDWEB_CLIENT_ID is not set. Wallet connection features may not work properly.');
+}
+
 const client = createThirdwebClient({
-  clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID || 'demo-client-id',
+  clientId: clientId || 'demo-client-id',
 });
 
 export function WalletConnect() {
@@ -20,7 +26,7 @@ export function WalletConnect() {
         client={client}
         theme="dark"
         connectButton={{
-          label: '🔗 CONNECT WALLET',
+          label: 'CONNECT WALLET',
           style: {
             background: 'rgba(0, 255, 204, 0.1)',
             border: '1px solid #00ffcc',
@@ -51,7 +57,7 @@ export function WalletConnect() {
         connectModal={{
           size: 'wide',
           title: 'CONNECT TO SCOPEDOWN',
-          titleIcon: '',
+          titleIcon: '🔗',
           showThirdwebBranding: false,
         }}
       />
