@@ -27,12 +27,18 @@ export function HUD() {
   const produceUnit = useGameStore((s) => s.produceUnit);
   const resetGame = useGameStore((s) => s.resetGame);
   const gameTime = useGameStore((s) => s.gameTime);
+  const toggleAdminPanel = useGameStore((s) => s.toggleAdminPanel);
+  const showAdminPanel = useGameStore((s) => s.showAdminPanel);
 
   const selectedUnits = units.filter((u) => selectedUnitIds.includes(u.id));
 
   // Keyboard shortcuts
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      if (e.key === '`') {
+        toggleAdminPanel();
+        return;
+      }
       if (gameStatus !== 'playing') {
         if (e.key === 'r' || e.key === 'R') {
           resetGame();
@@ -69,7 +75,7 @@ export function HUD() {
           break;
       }
     },
-    [gameStatus, togglePause, setCameraMode, produceUnit, resetGame]
+    [gameStatus, togglePause, setCameraMode, produceUnit, resetGame, toggleAdminPanel]
   );
 
   useEffect(() => {
@@ -174,6 +180,24 @@ export function HUD() {
           }}
         >
           {isPaused ? '▶ RESUME [P]' : '⏸ PAUSE [P]'}
+        </button>
+        <button
+          onClick={toggleAdminPanel}
+          style={{
+            background: showAdminPanel
+              ? 'rgba(255,204,0,0.3)'
+              : 'rgba(0,20,40,0.7)',
+            border: `1px solid ${showAdminPanel ? '#ffcc00' : '#1a3a4a'}`,
+            color: showAdminPanel ? '#ffcc00' : '#4a6a7a',
+            padding: '8px 16px',
+            fontSize: '11px',
+            cursor: 'pointer',
+            fontFamily: '"Courier New", monospace',
+            letterSpacing: '1px',
+            marginTop: '5px',
+          }}
+        >
+          ⚙ ADMIN [`]
         </button>
       </div>
 

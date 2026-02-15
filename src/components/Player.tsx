@@ -73,7 +73,7 @@ export function Player() {
         forwardRef.current.normalize();
 
         // Right vector is perpendicular to forward on XZ plane
-        rightRef.current.set(forwardRef.current.z, 0, -forwardRef.current.x);
+        rightRef.current.set(-forwardRef.current.z, 0, forwardRef.current.x);
 
         // Combine: W/S maps to forward/back along camera direction
         // A/D maps to strafe left/right perpendicular to camera direction
