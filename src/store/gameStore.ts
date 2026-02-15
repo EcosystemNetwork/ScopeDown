@@ -345,8 +345,8 @@ export const useGameStore = create<GameState>((set, get) => ({
         resources: savedState.resources,
         units: savedState.units,
         buildings: savedState.buildings,
-        gameTime: (savedState as any).gameTime || 0,
-        nextUnitId: (savedState as any).nextUnitId || 100,
+        gameTime: (savedState as { gameTime?: number }).gameTime || 0,
+        nextUnitId: (savedState as { nextUnitId?: number }).nextUnitId || 100,
         selectedUnitIds: [],
         isPaused: false,
       });
@@ -505,5 +505,28 @@ export const useGameStore = create<GameState>((set, get) => ({
         credits: state.resources.credits + creditsIncome,
       },
     });
+
+    // Auto-save every 30 seconds
+    const autoSaveInterval = 30;
+    const prevAutoSave = Math.floor(state.gameTime / autoSaveInterval);
+    const curAutoSave = Math.floor(gameTime / autoSaveInterval);
+    if (curAutoSave > prevAutoSave && gameStatus === 'playing') {
+      // Trigger auto-save in background (don't await)
+      const newState = get();
+      saveGameState({
+        player: newState.player,
+        gameStatus: newState.gameStatus,
+        cameraMode: newState.cameraMode,
+        resources: newState.resources,
+        units: newState.units,
+        buildings: newState.buildings,
+        gameTime: newState.gameTime,
+        nextUnitId: newState.nextUnitId,
+      }, 0).then(() => {
+        console.log('Auto-save completed');
+      }).catch(err => {
+        console.error('Auto-save failed:', err);
+      });
+    }
   },
 }));

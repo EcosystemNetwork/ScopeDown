@@ -29,8 +29,24 @@ export function HUD() {
   const gameTime = useGameStore((s) => s.gameTime);
   const toggleAdminPanel = useGameStore((s) => s.toggleAdminPanel);
   const showAdminPanel = useGameStore((s) => s.showAdminPanel);
+  const saveGame = useGameStore((s) => s.saveGame);
+  const loadGame = useGameStore((s) => s.loadGame);
 
   const selectedUnits = units.filter((u) => selectedUnitIds.includes(u.id));
+
+  const handleSave = async () => {
+    const success = await saveGame(1);
+    if (success) {
+      console.log('Game saved successfully');
+    }
+  };
+
+  const handleLoad = async () => {
+    const success = await loadGame(1);
+    if (success) {
+      console.log('Game loaded successfully');
+    }
+  };
 
   // Keyboard shortcuts
   const handleKeyDown = useCallback(
@@ -198,6 +214,39 @@ export function HUD() {
           }}
         >
           ⚙ ADMIN [`]
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={gameStatus !== 'playing'}
+          style={{
+            background: 'rgba(0,20,40,0.7)',
+            border: '1px solid #1a3a4a',
+            color: gameStatus === 'playing' ? '#4a6a7a' : '#2a2a2a',
+            padding: '8px 16px',
+            fontSize: '11px',
+            cursor: gameStatus === 'playing' ? 'pointer' : 'not-allowed',
+            fontFamily: '"Courier New", monospace',
+            letterSpacing: '1px',
+            marginTop: '10px',
+          }}
+        >
+          💾 SAVE
+        </button>
+        <button
+          onClick={handleLoad}
+          style={{
+            background: 'rgba(0,20,40,0.7)',
+            border: '1px solid #1a3a4a',
+            color: '#4a6a7a',
+            padding: '8px 16px',
+            fontSize: '11px',
+            cursor: 'pointer',
+            fontFamily: '"Courier New", monospace',
+            letterSpacing: '1px',
+            marginTop: '5px',
+          }}
+        >
+          📁 LOAD
         </button>
       </div>
 

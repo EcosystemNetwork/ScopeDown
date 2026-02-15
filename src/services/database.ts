@@ -121,7 +121,7 @@ export async function loadGameState(slot: number = 1): Promise<Partial<GameState
   }
 
   try {
-    const result: any = await sql`
+    const result = await sql`
       SELECT 
         player_state,
         game_status,
@@ -132,7 +132,14 @@ export async function loadGameState(slot: number = 1): Promise<Partial<GameState
       FROM game_saves
       WHERE save_slot = ${slot}
       LIMIT 1
-    `;
+    ` as unknown as Array<{
+      player_state: PlayerState;
+      game_status: string;
+      camera_mode: string;
+      resources: GameState['resources'];
+      units: Unit[];
+      buildings: Building[];
+    }>;
 
     if (!result || result.length === 0) {
       console.log('No saved game found in database');
@@ -182,13 +189,13 @@ export async function listSavedGames(): Promise<Array<{ slot: number; updatedAt:
   }
 
   try {
-    const result: any = await sql`
+    const result = await sql`
       SELECT save_slot, updated_at
       FROM game_saves
       ORDER BY save_slot
-    `;
+    ` as unknown as Array<{ save_slot: number; updated_at: string }>;
 
-    return result.map((row: any) => ({
+    return result.map((row) => ({
       slot: row.save_slot as number,
       updatedAt: new Date(row.updated_at as string),
     }));
