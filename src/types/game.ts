@@ -73,6 +73,7 @@ export interface GameState {
   gameTime: number;
   nextUnitId: number;
   player: PlayerState;
+  showAdminPanel: boolean;
   setGameScreen: (screen: GameScreen) => void;
   setCameraMode: (mode: CameraMode) => void;
   selectUnits: (ids: string[]) => void;
@@ -87,4 +88,9 @@ export interface GameState {
   produceUnit: (unitType: UnitType) => void;
   resetGame: () => void;
   updatePlayer: (partial: Partial<PlayerState>) => void;
+  toggleAdminPanel: () => void;
+  setResources: (resources: Partial<GameResources>) => void;
+  setGameStatus: (status: GameStatus) => void;
+  updateUnit: (id: string, partial: Partial<Unit>) => void;
+  updateBuilding: (id: string, partial: Partial<Building>) => void;
 }

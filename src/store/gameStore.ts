@@ -196,6 +196,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   gameTime: 0,
   nextUnitId: 100,
   player: { ...initialPlayer },
+  showAdminPanel: false,
 
   setGameScreen: (screen) => set({ gameScreen: screen }),
 
@@ -292,6 +293,25 @@ export const useGameStore = create<GameState>((set, get) => ({
   updatePlayer: (partial) =>
     set((state) => ({
       player: { ...state.player, ...partial },
+    })),
+
+  toggleAdminPanel: () => set((state) => ({ showAdminPanel: !state.showAdminPanel })),
+
+  setResources: (resources) =>
+    set((state) => ({
+      resources: { ...state.resources, ...resources },
+    })),
+
+  setGameStatus: (status) => set({ gameStatus: status }),
+
+  updateUnit: (id, partial) =>
+    set((state) => ({
+      units: state.units.map((u) => (u.id === id ? { ...u, ...partial } : u)),
+    })),
+
+  updateBuilding: (id, partial) =>
+    set((state) => ({
+      buildings: state.buildings.map((b) => (b.id === id ? { ...b, ...partial } : b)),
     })),
 
   tick: (delta) => {

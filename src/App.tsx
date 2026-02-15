@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { Scene } from './components/Scene';
 import { HUD } from './components/HUD';
 import { Minimap } from './components/Minimap';
+import { AdminPanel } from './components/AdminPanel';
 import { StartScreen } from './components/StartScreen';
 import { getRendererInfo } from './utils/webgpu';
 import { useGameStore } from './store/gameStore';
@@ -29,6 +30,7 @@ export default function App() {
       </Canvas>
       <HUD />
       <Minimap />
+      <AdminPanel />
       <div
           style={{
             position: 'absolute',
