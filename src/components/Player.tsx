@@ -50,8 +50,8 @@ export function Player() {
     // Raw input axes
     let inputX = 0;
     let inputZ = 0;
-    if (keysPressed.has('KeyW') || keysPressed.has('ArrowUp')) inputZ -= 1;
-    if (keysPressed.has('KeyS') || keysPressed.has('ArrowDown')) inputZ += 1;
+    if (keysPressed.has('KeyW') || keysPressed.has('ArrowUp')) inputZ += 1;
+    if (keysPressed.has('KeyS') || keysPressed.has('ArrowDown')) inputZ -= 1;
     if (keysPressed.has('KeyA') || keysPressed.has('ArrowLeft')) inputX -= 1;
     if (keysPressed.has('KeyD') || keysPressed.has('ArrowRight')) inputX += 1;
 
