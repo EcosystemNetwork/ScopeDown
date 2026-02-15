@@ -168,7 +168,7 @@ export function AdminPanel() {
             <button
               onClick={() => {
                 const val = parseInt(creditsInput);
-                if (!isNaN(val)) setResources({ credits: val });
+                if (!isNaN(val) && val >= 0) setResources({ credits: val });
                 setCreditsInput('');
               }}
               style={buttonStyle}
@@ -199,8 +199,8 @@ export function AdminPanel() {
                 const p = parseInt(powerInput);
                 const mp = parseInt(maxPowerInput);
                 const update: Partial<{ power: number; maxPower: number }> = {};
-                if (!isNaN(p)) update.power = p;
-                if (!isNaN(mp)) update.maxPower = mp;
+                if (!isNaN(p) && p >= 0) update.power = p;
+                if (!isNaN(mp) && mp >= 0) update.maxPower = mp;
                 if (Object.keys(update).length > 0) setResources(update);
                 setPowerInput('');
                 setMaxPowerInput('');
