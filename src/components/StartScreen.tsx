@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useGameStore } from '../store/gameStore';
+import { WalletConnect } from './WalletConnect';
 
 type MenuPanel = 'main' | 'settings' | 'credits';
 
@@ -136,6 +137,9 @@ export function StartScreen() {
         userSelect: 'none',
       }}
     >
+      {/* Wallet Connect Button */}
+      <WalletConnect />
+      
       {/* Ambient grid background */}
       <div
         style={{
