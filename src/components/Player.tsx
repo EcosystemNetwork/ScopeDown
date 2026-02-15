@@ -80,9 +80,9 @@ export function Player() {
         dx = (rightRef.current.x * normX + forwardRef.current.x * normZ) * speed;
         dz = (rightRef.current.z * normX + forwardRef.current.z * normZ) * speed;
       } else {
-        // Top-down: world-axis-aligned movement
+        // Top-down: world-axis-aligned movement (negate Z so W=up moves toward -Z on screen)
         dx = normX * speed;
-        dz = normZ * speed;
+        dz = -normZ * speed;
       }
     }
 
