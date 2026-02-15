@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { GameState, GameStatus, PlayerState, Unit, UnitType } from '../types/game';
 import { UNIT_COSTS, UNIT_STATS } from '../types/game';
+import { saveGameState, loadGameState } from '../services/database';
 
 const initialPlayer: PlayerState = {
   position: [0, 0.5, 5],
@@ -314,6 +315,48 @@ export const useGameStore = create<GameState>((set, get) => ({
       buildings: state.buildings.map((b) => (b.id === id ? { ...b, ...partial } : b)),
     })),
 
+  saveGame: async (slot = 1) => {
+    const state = get();
+    const gameState = {
+      player: state.player,
+      gameStatus: state.gameStatus,
+      cameraMode: state.cameraMode,
+      resources: state.resources,
+      units: state.units,
+      buildings: state.buildings,
+      gameTime: state.gameTime,
+      nextUnitId: state.nextUnitId,
+    };
+    
+    const success = await saveGameState(gameState, slot);
+    if (success) {
+      console.log(`Game saved to slot ${slot}`);
+    }
+    return success;
+  },
+
+  loadGame: async (slot = 1) => {
+    const savedState = await loadGameState(slot);
+    if (savedState) {
+      set({
+        player: savedState.player,
+        gameStatus: savedState.gameStatus,
+        cameraMode: savedState.cameraMode,
+        resources: savedState.resources,
+        units: savedState.units,
+        buildings: savedState.buildings,
+        gameTime: (savedState as { gameTime?: number }).gameTime || 0,
+        nextUnitId: (savedState as { nextUnitId?: number }).nextUnitId || 100,
+        selectedUnitIds: [],
+        isPaused: false,
+      });
+      console.log(`Game loaded from slot ${slot}`);
+      return true;
+    }
+    console.log(`No saved game found in slot ${slot}`);
+    return false;
+  },
+
   tick: (delta) => {
     const state = get();
     if (state.isPaused || state.gameStatus !== 'playing') return;
@@ -462,5 +505,28 @@ export const useGameStore = create<GameState>((set, get) => ({
         credits: state.resources.credits + creditsIncome,
       },
     });
+
+    // Auto-save every 30 seconds
+    const autoSaveInterval = 30;
+    const prevAutoSave = Math.floor(state.gameTime / autoSaveInterval);
+    const curAutoSave = Math.floor(gameTime / autoSaveInterval);
+    if (curAutoSave > prevAutoSave && gameStatus === 'playing') {
+      // Trigger auto-save in background (don't await)
+      const newState = get();
+      saveGameState({
+        player: newState.player,
+        gameStatus: newState.gameStatus,
+        cameraMode: newState.cameraMode,
+        resources: newState.resources,
+        units: newState.units,
+        buildings: newState.buildings,
+        gameTime: newState.gameTime,
+        nextUnitId: newState.nextUnitId,
+      }, 0).then(() => {
+        console.log('Auto-save completed');
+      }).catch(err => {
+        console.error('Auto-save failed:', err);
+      });
+    }
   },
 }));

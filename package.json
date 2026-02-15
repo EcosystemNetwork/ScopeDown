@@ -12,10 +12,14 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
+    "@thirdweb-dev/react": "^4.9.4",
+    "@thirdweb-dev/sdk": "^4.0.99",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "thirdweb": "^5.118.2",
     "three": "^0.182.0",
     "zustand": "^5.0.11"
   },

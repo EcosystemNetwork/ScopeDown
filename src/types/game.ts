@@ -93,4 +93,6 @@ export interface GameState {
   setGameStatus: (status: GameStatus) => void;
   updateUnit: (id: string, partial: Partial<Unit>) => void;
   updateBuilding: (id: string, partial: Partial<Building>) => void;
+  saveGame: (slot?: number) => Promise<boolean>;
+  loadGame: (slot?: number) => Promise<boolean>;
 }
