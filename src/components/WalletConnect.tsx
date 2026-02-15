@@ -5,7 +5,12 @@ import { ConnectButton } from 'thirdweb/react';
 const clientId = import.meta.env.VITE_THIRDWEB_CLIENT_ID;
 
 if (!clientId) {
-  console.warn('VITE_THIRDWEB_CLIENT_ID is not set. Wallet connection features may not work properly.');
+  console.warn(
+    'VITE_THIRDWEB_CLIENT_ID is not set. Wallet connection features may not work properly.\n' +
+    'To fix this, create a .env file in the root directory and add:\n' +
+    'VITE_THIRDWEB_CLIENT_ID=your_client_id_here\n' +
+    'Get your client ID from https://thirdweb.com/dashboard'
+  );
 }
 
 const client = createThirdwebClient({
